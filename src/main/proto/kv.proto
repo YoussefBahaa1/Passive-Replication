@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package kv;
+
+option java_multiple_files = true;
+
+// The gRPC service exposed by the FrontEnd to clients.
+service KVService {
+  rpc Put (PutRequest) returns (PutReply);
+  rpc Get (GetRequest) returns (GetReply);
+}
+
+message PutRequest {
+  string key = 1;
+  string value = 2;
+}
+
+message PutReply {
+  bool ok = 1;
+}
+
+message GetRequest {
+  string key = 1;
+}
+
+message GetReply {
+  bool found = 1;
+  string value = 2;
+}

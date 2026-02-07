@@ -1,0 +1,110 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>scc331</groupId>
+  <artifactId>lab4-passive-replication</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <properties>
+    <!-- Java version -->
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+
+    <!-- Match a stable modern combo (like in calc lab) -->
+    <protobuf.version>4.32.0</protobuf.version>
+    <grpc.version>1.75.0</grpc.version>
+
+    <!-- lets protoc download per-platform binary -->
+    <os.plugin.version>1.7.1</os.plugin.version>
+  </properties>
+
+  <build>
+    <extensions>
+      <!-- exposes ${os.detected.classifier} so protobuf plugin can fetch the right protoc/grpc-gen -->
+      <extension>
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>${os.plugin.version}</version>
+      </extension>
+    </extensions>
+
+    <plugins>
+      <!-- Generate Java types + gRPC stubs from src/main/proto/kv.proto -->
+      <plugin>
+        <groupId>org.xolstice.maven.plugins</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <version>0.6.1</version>
+
+        <configuration>
+          <!-- default proto root is src/main/proto so we don't override -->
+          <protocArtifact>
+            com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
+          </protocArtifact>
+
+          <pluginId>grpc-java</pluginId>
+          <pluginArtifact>
+            io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}
+          </pluginArtifact>
+        </configuration>
+
+        <executions>
+          <execution>
+            <id>generate-proto</id>
+            <goals>
+              <goal>compile</goal>
+              <goal>compile-custom</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- run classes like mvn -Dexec.mainClass=... exec:java -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <!-- gRPC runtime / transport -->
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-netty-shaded</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+
+    <!-- gRPC stub base classes + generated service base class -->
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-stub</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+
+    <!-- gRPC <-> protobuf glue -->
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-protobuf</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+
+    <!-- Protobuf message runtime -->
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <version>${protobuf.version}</version>
+    </dependency>
+
+    <!-- For @Generated in some codegen paths -->
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>javax.annotation-api</artifactId>
+      <version>1.3.2</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+</project>
+

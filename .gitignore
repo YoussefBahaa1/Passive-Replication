@@ -1,0 +1,20 @@
+# Maven
+target/
+dependency-reduced-pom.xml
+*.log
+
+# IntelliJ / VSCode
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java
+*.class
+out/
